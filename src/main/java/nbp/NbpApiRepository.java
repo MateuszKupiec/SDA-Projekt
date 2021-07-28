@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import db.Currency;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,21 +17,16 @@ public class NbpApiRepository {
         this.nbpApi = nbpApi;
     }
 
-    public Currency findCurrency(String codeOfCurrency) {
-        Optional<CurrencyExchangeRate> currencyExchangeRate =
-                getCurrencyExchangeRate(nbpApi.callApiA(), codeOfCurrency);
-        if (currencyExchangeRate.isEmpty()){
-            currencyExchangeRate = getCurrencyExchangeRate(nbpApi.callApiB(), codeOfCurrency);
-        }
-        return convertCurrencyExchangeRateToCurrency(currencyExchangeRate);
+    public Optional<Currency> findCurrency(String codeOfCurrency) {
+        return getCurrency(codeOfCurrency, getCurrencyExchangeRateTable(nbpApi.callApiA()))
+                .or(() -> getCurrency(codeOfCurrency, getCurrencyExchangeRateTable(nbpApi.callApiB())));
     }
 
-    private Optional<CurrencyExchangeRate> getCurrencyExchangeRate(String nbpTable, String codeOfCurrency) {
-        return getCurrencyExchangeRateTable(nbpTable)
-                .stream()
-                .flatMap(rateList -> rateList.getRates().stream())
-                .filter(x -> x.getCode().equalsIgnoreCase(codeOfCurrency))
-                .findFirst();
+    private Optional<Currency> getCurrency(String codeOfCurrency, List<CurrencyExchangeRateList> currencyExchangeRateLists){
+        return currencyExchangeRateLists.stream().flatMap(x -> {
+           String date = x.getEffectiveDate();
+          return x.getRates().stream().map(y -> convertCurrencyExchangeRateToCurrency(y, date));
+        }).filter(x -> x.getCode().equalsIgnoreCase(codeOfCurrency)).findFirst();
     }
 
     private List<CurrencyExchangeRateList> getCurrencyExchangeRateTable(String jsonFile) {
@@ -41,12 +38,10 @@ public class NbpApiRepository {
         }
     }
 
-    private Currency convertCurrencyExchangeRateToCurrency(Optional<CurrencyExchangeRate> currencyExchangeRate){
-        if (currencyExchangeRate.isPresent()){
-            CurrencyExchangeRate rate = currencyExchangeRate.get();
-            return new Currency(rate.getCode(), rate.getCurrency(), rate.getMid());
-        }
-        throw new NbpApiException("Currency code not found!");
+    private Currency convertCurrencyExchangeRateToCurrency(CurrencyExchangeRate rate, String date) {
+        LocalDate dateToAdd = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+
+        return new Currency(null, rate.getCode(), rate.getCurrency(), rate.getMid(), dateToAdd);
     }
 
 }

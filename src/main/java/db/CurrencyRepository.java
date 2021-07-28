@@ -2,6 +2,8 @@ package db;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -15,7 +17,16 @@ public class CurrencyRepository {
     }
 
     public Optional<Currency> findCurrency(String currencyCode) {
-        return Optional.ofNullable(entityManager.find(Currency.class, currencyCode));
+        return entityManager.createQuery("FROM Currency c WHERE 'c.code'=:code", Currency.class)
+                .setParameter("code",currencyCode)
+                .getResultList().stream().findFirst();
+    }
+
+    public Optional<Currency> findCurrencyByDate(String currencyCode, LocalDate myDate) {
+        return entityManager.createQuery("FROM Currency c WHERE 'c.date'=:dateParam AND 'c.code'=:code", Currency.class)
+                                            .setParameter("dateParam", Date.valueOf(myDate))
+                                            .setParameter("code",currencyCode)
+                                            .getResultList().stream().findFirst();
     }
 
     public Optional<List<Currency>> findAllCurrencies() {

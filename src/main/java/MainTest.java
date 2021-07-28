@@ -7,6 +7,8 @@ import nbp.NbpApiRepository;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
 
 
 public class MainTest {
@@ -25,6 +27,13 @@ public class MainTest {
         System.out.println(currencyConverter.convertFromPln("EUR", new BigDecimal("90")));
         System.out.println(currencyConverter.convertToPln("USD", new BigDecimal("20")));
         System.out.println(currencyConverter.convertFromPln("BAM", new BigDecimal("20")));
+        System.out.println(currencyConverter.convert("EUR","USD", new BigDecimal("20")));
+
+        System.out.println("By date");
+
+        System.out.println(LocalDate.now());
+
+        System.out.println(currencyConverter.convertToPlnByDate("EUR", new BigDecimal("10"), LocalDate.now()));
         //currencyConverter.convertFromPln("ABC", new BigDecimal(10));
     }
 }

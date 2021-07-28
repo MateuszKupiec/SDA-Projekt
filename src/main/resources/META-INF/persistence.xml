@@ -9,8 +9,8 @@
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/currencyconverterdb" />
-            <property name="javax.persistence.jdbc.user" value="zdjavapol86" />
-            <property name="javax.persistence.jdbc.password" value="zdjavapol86" />
+            <property name="javax.persistence.jdbc.user" value="mateusz" />
+            <property name="javax.persistence.jdbc.password" value="ZDJAVApol86" />
             <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.hbm2ddl.auto" value="update" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect" />
